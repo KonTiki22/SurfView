@@ -10,21 +10,22 @@ import java.util.Random;
 
 public class Ball {
     double x, y;
-    double vx, vy, v;
-    double radius;
-    Integer[] colors = {Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, Color.MAGENTA, Color.CYAN, Color.BLACK};
+    double vx, vy;
+    int radius;
+    int count = 20;
+    Integer[] colors;
     int color;
     Random r = new Random();
     Canvas canvas;
     Paint paint = new Paint();
-    public Ball(float x, float y, float vx, float vy, int radius, Canvas canvas) {
+    public Ball(int x, int y, int vx, int vy, int radius, Canvas canvas, Integer[] colors) {
         this.x = x;
         this.y = y;
         this.vx = vx;
         this.vy = vy;
-        this.v = Math.sqrt(vx*vx + vy*vy);
         this.radius = radius;
         this.canvas = canvas;
+        this.colors = colors;
         color = colors[r.nextInt(colors.length)];
         paint.setColor(color);
         canvas.drawCircle(x, y, radius, paint);
@@ -32,13 +33,18 @@ public class Ball {
     void update() {
         x += vx;
         y += vy;
+        count++;
         canvas.drawCircle((float) x,(float) y, (int)radius, paint);
     }
 
     void changeColor() {
-        int index = Arrays.asList(colors).indexOf(paint.getColor());
-        color = colors[(index + 1) % colors.length];
-        paint.setColor(color);
+        if(count > 20) {
+            int index = Arrays.asList(colors).indexOf(paint.getColor());
+            color = colors[(index + 1) % colors.length];
+            paint.setColor(color);
+            count = 0;
+        }
+
     }
 
     void boxCollide() {
@@ -46,17 +52,35 @@ public class Ball {
         int height = canvas.getHeight();
         double pvx = vx, pvy = vy;
 
+        if(x < radius) {
+            x = radius;
+            vx = vx<-5? -vx-1 : -vx;
+        }
+        if(x > width - radius) {
+            x = width - radius;
+            vx = vx>5? -vx+1 : -vx;
+        }
+        if(y < radius) {
+            y = radius;
+            vy = vy<-5? -vy-1 : -vy;
+        }
+        if(y > height - radius) {
+            y = height - radius;
+            vy = vy>5? -vy+1 : -vy;
+        }
+/*
         if(x < radius || x > width - radius) {
-            x = x < radius? radius : width - radius;
+            x = x < radius? radius + 10 : width - radius - 10;
+            vx = vx > 0? vx - 1: vx + 1;
             vx = -vx;
         }
         if(y < radius || y > height - radius) {
-            y = y < radius? radius : height - radius;
+            y = y < radius? radius + 10: height - radius - 10;
+            vy = vy > 0? vy - 1: vy + 1;
             vy = -vy;
-        }
-
+        }*/
         if(pvx != vx || pvy != vy) {
-            //changeColor();
+            changeColor();
         }
     }
 
